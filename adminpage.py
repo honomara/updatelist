@@ -31,7 +31,7 @@ def output_admin(out, sites):
 	out.write("<tr><td colspan='3'><input type='submit' value='追加'/></td></tr>\n")
 	out.write("</form>\n")
 	out.write("</table>\n")
-	out.write("<p>※ 対応ブログ：seesaa, hatena, goo, shinobi, blogspot, fc2, ameblo, so-net, livedoor, cocolog, love.ap.teacup.com</p>")
+	out.write("<p>※ 対応ブログ：google sites, seesaa, hatena, goo, shinobi, blogspot, fc2, ameblo, so-net, livedoor, cocolog, love.ap.teacup.com</p>")
 	out.write("</div>")
 	
 	out.write("<h3 style='margin-bottom:0px;'>登録サイト一覧</h3>\n")
