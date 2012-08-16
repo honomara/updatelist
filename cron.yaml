@@ -1,0 +1,4 @@
+cron:
+- description: check site's update
+  url: /?cron=1
+  schedule: every 2 minutes
