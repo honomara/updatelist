@@ -3,7 +3,7 @@
 from google.appengine.ext import webapp
 from google.appengine.ext import db
 
-from httplib import HTTPConnection, HTTPException
+from httplib import HTTPConnection, HTTPException, HTTPSConnection
 
 from common import *
 from myclass import *
@@ -26,103 +26,127 @@ def parse_url(url):
 		path = get_default_path(url) + 'index.rdf'
 		type = 2
 		tag = '<dc:date>'
+		ssl = False
 	# livedoor
 	elif( url.find('blog.livedoor.jp') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url) + 'index.rdf'
 		type = 2
 		tag = '<dc:date>'
+		ssl = False
+	# google
+	elif( url.find('sites.google.com') >= 0 ):
+		host = 'sites.google.com'
+		path = '/feeds/content' + get_default_path(url)
+		type = 2
+		tag = '<updated>'
+		protocol = 'http'
+		ssl = True
 	# Seesaa
 	elif( url.find('.seesaa.net') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url ) + 'index.rdf'
 		type = 2
 		tag = '<dc:date>'
+		ssl = False
 	# hatena
 	elif( url.find('d.hatena.ne.jp') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url ) + 'rss'
 		type = 2
 		tag = '<dc:date>'
+		ssl = False
 	# shinobi
 	elif( url.find('.blog.shinobi.jp') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url ) + 'atom'
 		type = 2
 		tag = '<dc:date>'
+		ssl = False
 	# blogspot
 	elif( url.find('.blogspot.com') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url ) + 'rss.xml'
 		type = 2
 		tag = '<updated>'
+		ssl = False
 	# fc2
 	elif( url.find('.fc2.com') >= 0 ):
 		host = "feeds.fc2.com"
 		path = "/fc2/xml?host=" + get_default_host(url).replace(".fc2.com", "")
 		type = 2
 		tag = '<dc:date>'
+		ssl = False
 	# ameblo
 	elif( url.find('ameblo.jp') >= 0 ):
 		host = "feedblog.ameba.jp"
 		path = "/rss/ameblo" + get_default_path(url) + "rss20.xml"
 		type = 2
 		tag = '<pubDate>'
+		ssl = False
 	# cocolog
 	elif( url.find('cocolog-nifty.com') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url) + "index.rdf"
 		type = 2
 		tag = '<dc:date>'
+		ssl = False
 	# so-net
 	elif( url.find('.blog.so-net.ne.jp') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url) + "atom.xml"
 		type = 2
 		tag = '<modified>'
+		ssl = False
 	# love.ap.teacup.com
 	elif( url.find('love.ap.teacup.com') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url) + "rss.xml"
 		type = 2
 		tag = '<dc:date>'
+		ssl = False
 	# Honomara OB
 	elif( url.find('ob.honomara.net/bbs') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url)
 		type = 3
 		tag  = ''
+		ssl = False
 	elif( url.find('ob.honomara.net/luna') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url) + "last_modified.txt"
 		type = 4
 		tag  = ''
+		ssl = False
 	# Honomara
 	elif( url.find('.honomara.net/cgi-bin/wiki') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url) + "index.php?cmd=rss&ver=1.0"
 		type = 2
 		tag  = '<dc:date>'
+		ssl = False
 	elif( url.find('.honomara.net') >= 0 ):
 		host = get_default_host(url)
 		path = get_default_path(url)
 		type = 0
 		tag  = ''
+		ssl = False
 	# others
 	else:
 		host = get_default_host(url)
 		path = get_default_path(url)
 		type = 1
 		tag  = '' 
+		ssl = False
 		
-	return host,path,type,tag
+	return host,path,type,tag,ssl
 
 
 def get_update_time_0(site):
         global HTTP_TIMEOUT
 
 	# get site parameters
-	host, path, type, tag = parse_url(site.url)
+	host, path, type, tag, ssl = parse_url(site.url)
 
         httpcon = HTTPConnection('www.honomara.net', 80, timeout=HTTP_TIMEOUT)
         httpcon.request('GET', '/etc/list.php', {}, {})
@@ -140,7 +164,7 @@ def get_update_time_1(site):
         global HTTP_TIMEOUT
 
 	# get site parameters
-	host, path, type, tag = parse_url(site.url)
+	host, path, type, tag, ssl = parse_url(site.url)
 
         httpcon = HTTPConnection(host, 80, timeout=HTTP_TIMEOUT)
         httpcon.request('HEAD', path, {}, {})
@@ -159,12 +183,15 @@ def get_update_time_2(site):
         global HTTP_TIMEOUT, PAGE_SIZE
 
 	# get site parameters
-	host, path, type, tag = parse_url(site.url)
+	host, path, type, tag, ssl = parse_url(site.url)
 
-        httpcon = HTTPConnection(host, 80, timeout=HTTP_TIMEOUT)
+	if ssl:
+		httpcon = HTTPSConnection(host)
+	else:
+		httpcon = HTTPConnection(host, 80, timeout=HTTP_TIMEOUT)
         httpcon.request('GET', path, {}, {})
         res = httpcon.getresponse()
-        
+
         # look for tag in the first 4096 bytes
         body = res.read(PAGE_SIZE)
         index = body.find(tag)
@@ -196,7 +223,7 @@ def get_update_time_3(site):
         global HTTP_TIMEOUT
 
 	# get site parameters
-	host, path, type, tag = parse_url(site.url)
+	host, path, type, tag, ssl = parse_url(site.url)
 
         httpcon = HTTPConnection(host, 80, timeout=HTTP_TIMEOUT)
         httpcon.request('GET', path, {}, {})
@@ -234,7 +261,7 @@ def get_default_path(url):
 	return '/' + '/'.join(tokens[3:])
 
 def get_site_type(site):
-	host, path, type, tag = parse_url(site.url)
+	host, path, type, tag, ssl = parse_url(site.url)
 	return type
 
 def get_update_time(site):
@@ -258,7 +285,8 @@ def get_update_time(site):
 			get_update_time_3(site)
 		elif type == 4:
 			get_update_time_4(site)
-	except:
+	except Exception, e:
+		logging.error(e)
 		logging.error("## Failed to check " + site.url)
 
 def check_sites(sites, cron_flag):
