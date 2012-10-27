@@ -38,8 +38,8 @@ def parse_url(url):
 	elif( url.find('sites.google.com') >= 0 ):
 		host = 'sites.google.com'
 		path = '/feeds/content' + get_default_path(url)
-		type = 2
-		tag = '<updated>'
+		type = 5
+		tag = ''
 		protocol = 'http'
 		ssl = True
 	# Seesaa
@@ -252,6 +252,41 @@ def get_update_time_4(site):
 
         httpcon.close()
 
+def get_update_time_5(site):
+	# TO-DO: merge this function into get_update_time_2
+
+	global HTTP_TIMEOUT, PAGE_SIZE
+
+	# get site parameters
+	host, path, type, tag, ssl = parse_url(site.url)
+
+	httpcon = HTTPSConnection(host)
+	httpcon.request('GET', path, {}, {})
+	res = httpcon.getresponse()
+
+	# look for tag in the first 4096 bytes
+	body = res.read()
+	index = body.find("</published><updated>")
+
+	# TO-DO: look at the remaining bytes if necessary
+
+	# if tag found, look for close tag
+	if ( index >= 0 ):
+		close_tag = "</updated>"
+		close_tag_index = index + body[index:].find(close_tag)
+
+	# if close tag found, get time representation
+	if ( close_tag_index >= 0 ):
+		time_str = body[index+len("</published><updated>"):close_tag_index]
+
+		# parse time string and add 32400 secs to make JST
+		time_update_uct = time.strptime(time_str[0:19], '%Y-%m-%dT%H:%M:%S')
+		time_update = time.localtime(time.mktime(time_update_uct) + 32400)
+
+		update_update_time(site, time_update)
+
+	httpcon.close()
+
 def get_default_host(url):
 	tokens = url.split('/')
 	return tokens[2]
@@ -285,6 +320,8 @@ def get_update_time(site):
 			get_update_time_3(site)
 		elif type == 4:
 			get_update_time_4(site)
+		elif type == 5:
+			get_update_time_5(site)
 	except Exception, e:
 		logging.error(e)
 		logging.error("## Failed to check " + site.url)
@@ -322,7 +359,9 @@ def output_html_body(out, sites):
 
 	# set parameter
 #        lt = get_now_jst()
-	lt = time.localtime(get_access().time_cache)
+	# add 32400 to make JST (TO-DO: use a timezone conversion function)
+	lt = time.localtime(get_access().time_cache + 32400)
+
 
         out.write('<body>\n')
         out.write('<div align="center">\n')
