@@ -84,6 +84,13 @@ def parse_url(url):
 		type = 2
 		tag = '<pubDate>'
 		ssl = False
+	# yahoo
+	elif( url.find('blogs.yahoo.co.jp') >= 0):
+		host = get_default_host(url)
+		path = get_default_path(url) + 'rss.xml'
+		type = 2
+		tag = '<pubDate>'
+		ssl = False
 	# cocolog
 	elif( url.find('cocolog-nifty.com') >= 0 ):
 		host = get_default_host(url)
@@ -210,7 +217,7 @@ def get_update_time_2(site):
 	if( close_tag_index >= 0 ):
 		time_str = body[index+len(tag):close_tag_index]
 
-		if( tag == '<pubDate>' ): # for ameblo
+		if( tag == '<pubDate>' ): # for ameblo and yahoo
 			time_update = time.strptime(time_str[5:25], '%d %b %Y %H:%M:%S')
 		else:
 			time_update = time.strptime(time_str[0:19], '%Y-%m-%dT%H:%M:%S')
