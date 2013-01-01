@@ -23,14 +23,14 @@ def parse_url(url):
 	# goo
 	if( url.find('blog.goo.ne.jp') >= 0 ):
 		host = get_default_host(url)
-		path = get_default_path(url) + 'index.rdf'
+		path = get_default_path(url) + 'index.rdf' + get_random_query_string()
 		type = 2
 		tag = '<dc:date>'
 		ssl = False
 	# livedoor
 	elif( url.find('blog.livedoor.jp') >= 0 ):
 		host = get_default_host(url)
-		path = get_default_path(url) + 'index.rdf'
+		path = get_default_path(url) + 'index.rdf' + get_random_query_string()
 		type = 2
 		tag = '<dc:date>'
 		ssl = False

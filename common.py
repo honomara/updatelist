@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import random
 import time
 
 VERSION = '3.1'
@@ -8,6 +9,11 @@ def get_jst_time(t = None):
 	if t == None:
 		t = int(time.time())
 	return time.localtime(t + (9 * 3600))
+
+def get_random_query_string():
+	random.seed(int(time.time()))
+	random_query_string = "q=" + str(random.random())
+	return "?q=" + str(random.random())
 
 def parse_time(t):
 	return t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, t.tm_wday
