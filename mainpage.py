@@ -364,11 +364,8 @@ def check_sites(sites, cron_flag):
 def output_html_body(out, sites):
         global WDAYS
 
-	# set parameter
-#        lt = get_now_jst()
-	# add 32400 to make JST (TO-DO: use a timezone conversion function)
-	lt = time.localtime(get_access().time_cache + 32400)
-
+	# get list update time
+	lt = get_jst_time(get_access().time_cache)
 
         out.write('<body>\n')
         out.write('<div align="center">\n')
@@ -389,7 +386,7 @@ def output_html_body(out, sites):
                         out.write('失敗')
 		elif site.time_update == None:
 			out.write('不明')
-                elif time.localtime(site.time_update).tm_year != time.localtime().tm_year:
+		elif time.localtime(site.time_update).tm_year != get_jst_time().tm_year:
 #			year, mon, mday  = parse_time(time.localtime(site.time_update))
                         out.write('%d/%02d/%02d' % (year, mon, mday))
                 else:
