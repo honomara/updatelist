@@ -61,7 +61,7 @@ def parse_url(url):
 		host = get_default_host(url)
 		path = get_default_path(url ) + 'atom'
 		type = 2
-		tag = '<dc:date>'
+		tag = '<published>'
 		ssl = False
 	# blogspot
 	elif( url.find('.blogspot.com') >= 0 ):
