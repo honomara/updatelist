@@ -56,6 +56,13 @@ def parse_url(url):
 		type = 2
 		tag = '<dc:date>'
 		ssl = False
+	# tumblr
+	elif( url.find('tumblr.com') >= 0 ):
+		host = get_default_host(url)
+		path = get_default_path(url ) + 'rss'
+		type = 2
+		tag = '<pubDate>'
+		ssl = False
 	# shinobi
 	elif( url.find('.blog.shinobi.jp') >= 0 ):
 		host = get_default_host(url)
