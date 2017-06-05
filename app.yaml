@@ -1,12 +1,9 @@
 application: honomaraob-updatelist
 version: 1
-runtime: python
+runtime: python27
 api_version: 1
+threadsafe: true
 
 handlers:
-- url: /admin
-  script: main.py
-  login: admin
-
 - url: /.*
-  script: main.py
+  script: main.app
